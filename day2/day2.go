@@ -20,7 +20,7 @@ func main() {
 	valid := 0
 	valid_pt2 := 0
 
-	for _, line := range lines{
+	for _, line := range lines {
 
 		splitline := strings.Split(line, " ")
 
