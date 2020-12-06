@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -55,15 +56,32 @@ func main() {
 	lines := strings.Split(string(content), "\n")
 
 	maxId := -1
+	var seatIds []int
 
 	for _, line := range lines {
 
 		seatId := forwardBack(line, 0, 127)
+		seatIds = append(seatIds, seatId)
 		if seatId > maxId {
 			maxId = seatId
 		}
 	}
 	fmt.Println("Part 1")
 	fmt.Println(maxId)
+
+	sort.Ints(seatIds)
+
+	for index, seatId := range seatIds {
+		if index == 0 || index == len(seatIds)-1{
+			continue
+		}
+		next := seatIds[index+1]
+
+		if seatId+1 != next {
+			fmt.Println("Part 2")
+			fmt.Println(seatId+1)
+		}
+
+	}
 
 }
