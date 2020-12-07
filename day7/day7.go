@@ -10,7 +10,6 @@ import (
 type Bag struct {
 	color string
 	number int
-
 }
 
 var containedIn = make(map[string][]Bag)
