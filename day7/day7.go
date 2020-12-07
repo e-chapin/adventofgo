@@ -14,9 +14,10 @@ type Bag struct {
 }
 
 var containedIn = make(map[string][]Bag)
+var contains = make(map[string][]Bag)
 var containers = make(map[string]bool)
 
-func findColor(color string){
+func findColor(color string) {
 
 	parents := containedIn[color]
 	for _, c := range parents {
@@ -25,28 +26,38 @@ func findColor(color string){
 	}
 }
 
+func calculateInnerBags(color string) int {
+
+	total := 0
+	for _, innerBag := range contains[color] {
+		total += innerBag.number + innerBag.number * calculateInnerBags(innerBag.color)
+	}
+	return total
+}
+
+
 func main() {
 
 	lines := adventofgo.ReadFile("input.txt")
 
 	for _, line := range lines {
 
-		colorSearch := regexp.MustCompile("(.+?) bags contain")
-		bagsSearch := regexp.MustCompile("(\\d+) (.+?) bags?[,.]")
-		color := colorSearch.FindAllStringSubmatch(line, -1)[0][1]
-		contents := bagsSearch.FindAllStringSubmatch(line, -1)
+		color := regexp.MustCompile("(.+?) bags contain").FindAllStringSubmatch(line, -1)[0][1]
+		contents := regexp.MustCompile("(\\d+) (.+?) bags?[,.]").FindAllStringSubmatch(line, -1)
 
 		for _, match := range contents {
 			number, _ := strconv.Atoi(match[1])
 			bag := match[2]
-			if _, ok := containedIn[bag]; !ok {
-				containedIn[bag] = []Bag{}
-			}
 			containedIn[bag] = append(containedIn[bag], Bag{color, number})
+			contains[color] = append(contains[color], Bag{bag, number})
 		}
 	}
+
 	fmt.Println("Part 1")
 	findColor("shiny gold")
 	fmt.Println(len(containers))
+
+	fmt.Println("Part 2")
+	fmt.Println(calculateInnerBags("shiny gold"))
 
 }
