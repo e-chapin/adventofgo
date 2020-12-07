@@ -4,17 +4,24 @@ import (
 	"adventofgo"
 	"fmt"
 	"regexp"
+	"strconv"
 )
 
-var containedIn = make(map[string][]string)
+type Bag struct {
+	color string
+	number int
+
+}
+
+var containedIn = make(map[string][]Bag)
 var containers = make(map[string]bool)
 
 func findColor(color string){
 
 	parents := containedIn[color]
 	for _, c := range parents {
-		containers[c] = true
-		findColor(c)
+		containers[c.color] = true
+		findColor(c.color)
 	}
 }
 
@@ -30,12 +37,12 @@ func main() {
 		contents := bagsSearch.FindAllStringSubmatch(line, -1)
 
 		for _, match := range contents {
+			number, _ := strconv.Atoi(match[1])
 			bag := match[2]
-			if val, ok := containedIn[bag]; ok {
-				containedIn[bag] = append(val, color)
-			}else{
-				containedIn[bag] = []string{color}
+			if _, ok := containedIn[bag]; !ok {
+				containedIn[bag] = []Bag{}
 			}
+			containedIn[bag] = append(containedIn[bag], Bag{color, number})
 		}
 	}
 	fmt.Println("Part 1")
