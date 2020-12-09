@@ -8,7 +8,7 @@ import (
 )
 
 
-// probably a more clever way to do this.
+// find a more clever way to do this.
 func findSum(sum int, lines []int) bool {
 	for i := 0; i < len(lines); i++ {
 		first := lines[i]
