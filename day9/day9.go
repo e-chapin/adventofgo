@@ -3,13 +3,13 @@ package main
 import (
 	"adventofgo"
 	"fmt"
+	"sort"
 	"strconv"
 )
 
 
+// probably a more clever way to do this.
 func findSum(sum int, lines []int) bool {
-
-	// probably a more clever way to do this.
 	for i := 0; i < len(lines); i++ {
 		first := lines[i]
 		for j := 0; j < len(lines); j++ {
@@ -20,7 +20,26 @@ func findSum(sum int, lines []int) bool {
 		}
 	}
 	return false
+}
 
+// this too
+func findContiguous(sum int, lines []int) int{
+
+	for i := 0; i < len(lines); i++ {
+		first := lines[i]
+		tmpSum := first
+		j := i+1
+		for tmpSum <= sum {
+			tmpSum += lines[j]
+			if tmpSum == sum {
+				contiguous := lines[i:j+1]
+				sort.Ints(contiguous)
+				return contiguous[0] + contiguous[len(contiguous)-1]
+			}
+			j += 1
+		}
+	}
+	return -1
 }
 
 func main() {
@@ -47,9 +66,9 @@ func main() {
 		number := lines[i]
 		if !findSum(number, lines[i-preamble:i]){
 			fmt.Println(number)
+			fmt.Println("Part 2")
+			fmt.Println(findContiguous(number, lines))
 			break
 		}
-
-
 	}
 }
