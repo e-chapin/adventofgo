@@ -17,17 +17,11 @@ func ReadFile(name string) []string{
 	return strings.Split(string(content), "\n")
 }
 
-
-//for index, line := range lines {
-//
-//if line == ""{
-//// check for completed passport
-//if checkPassportPartOne(currentPassport){
-//validCountPartOne += 1
-//}
-//if checkPassportPartTwo(currentPassport){
-//validCountPartTwo += 1
-//}
-//currentPassport = make(map[string]string)
-//continue
-//	}
+func Contains(item int, list []int) bool{
+	for _, value := range list {
+		if value == item {
+			return true
+		}
+	}
+	return false
+}
