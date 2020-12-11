@@ -15,48 +15,27 @@ func main() {
 
 	for row, line := range strlines {
 		seatMap[row] = make([]string, len(line))
-		//fmt.Println("Row", row)
 		for column, s := range line {
 			seat := string(s)
-			//fmt.Println("column", column)
-			//fmt.Println("seat", seat)
 			seatMap[row][column] = seat
-
 		}
-		//fmt.Println(index)
-		//fmt.Println(line)
 	}
 
-	count := 0
+	var seats int
 	for {
 		var changes int
-		//tempSeatMap := copySeatMap(seatMap)
-		changes, seatMap = checkSeats(seatMap)
-		fmt.Println(seatMap)
+		changes, seats, seatMap = checkSeats(seatMap)
 		if changes == 0 {
 			break
 		}
-		count += 1
-		//seatMap = copySeatMap(tempSeatMap)
 	}
-	fmt.Println(countSeats(seatMap))
+	fmt.Println(seats)
 
 }
 
-func countSeats(seatMap [][]string) int{
-	count := 0
-	for _, line := range seatMap {
-		for _, seat := range line {
-			if seat == "#" {
-				count += 1
-			}
-		}
-	}
-	return count
-}
 
-func checkSeats(seatMap [][]string) (int, [][]string){
-	changes := 0
+func checkSeats(seatMap [][]string) (int, int, [][]string){
+	seats, changes := 0, 0
 
 	tempSeatMap := copySeatMap(seatMap)
 
@@ -69,20 +48,24 @@ func checkSeats(seatMap [][]string) (int, [][]string){
 				continue
 			case "L":
 				// empty seat
-				if countAdjecent(row, column, seatMap) == 0 {
+				if countAdjacent(row, column, seatMap) == 0 {
 					tempSeatMap[row][column] = "#"
 					changes += 1
+					// newly occupied
+					seats += 1
 				}
 			case "#":
-				if countAdjecent(row, column, seatMap) >= 4 {
+				if countAdjacent(row, column, seatMap) >= 4 {
 					tempSeatMap[row][column] = "L"
 					changes += 1
-
+				} else {
+					// still occupied
+					seats += 1
 				}
 			}
 		}
 	}
-	return changes, tempSeatMap
+	return changes, seats, tempSeatMap
 }
 
 func copySeatMap(seatMap [][]string) [][]string {
@@ -94,7 +77,7 @@ func copySeatMap(seatMap [][]string) [][]string {
 	return tempSeatMap
 }
 
-func countAdjecent(row int, column int, grid [][]string) int{
+func countAdjacent(row int, column int, grid [][]string) int{
 
 	count := 0
 	checkSeatCount := 0
