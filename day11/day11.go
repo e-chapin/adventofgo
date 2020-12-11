@@ -7,8 +7,6 @@ import (
 
 func main() {
 
-	fmt.Println("Day 11 Part 1")
-
 	strlines := adventofgo.ReadFile("input.txt")
 	var seatMap [][]string
 	seatMap = make([][]string, len(strlines))
@@ -22,19 +20,35 @@ func main() {
 	}
 
 	var seats int
+
+	initialSeats := copySeatMap(seatMap)
+
 	for {
 		var changes int
-		changes, seats, seatMap = checkSeats(seatMap)
+		changes, seats, seatMap = checkAdjacentSeats(seatMap)
 		if changes == 0 {
 			break
 		}
 	}
+	fmt.Println("Day 11 Part 1")
+	fmt.Println(seats)
+
+	seatMap = initialSeats
+	for {
+		var changes int
+		changes, seats, seatMap = checkVisibleSeats(seatMap)
+		if changes == 0 {
+			break
+		}
+	}
+
+	fmt.Println("Day 11 Part 2")
 	fmt.Println(seats)
 
 }
 
 
-func checkSeats(seatMap [][]string) (int, int, [][]string){
+func checkAdjacentSeats(seatMap [][]string) (int, int, [][]string){
 	seats, changes := 0, 0
 
 	tempSeatMap := copySeatMap(seatMap)
@@ -96,6 +110,73 @@ func countAdjacent(row int, column int, grid [][]string) int{
 			gridVal := grid[r][c]
 			if gridVal == "#" {
 				count += 1
+			}
+		}
+	}
+	return count
+
+}
+
+func checkVisibleSeats(seatMap [][]string) (int, int, [][]string){
+	seats, changes := 0, 0
+
+	tempSeatMap := copySeatMap(seatMap)
+
+	for row, line := range seatMap {
+		for column, seat := range line {
+
+			switch seat {
+			case ".":
+				// floor
+				continue
+			case "L":
+				// empty seat
+				if countVisibleSeats(row, column, seatMap) == 0 {
+					tempSeatMap[row][column] = "#"
+					changes += 1
+					// newly occupied
+					seats += 1
+				}
+			case "#":
+				if countVisibleSeats(row, column, seatMap) >= 5 {
+					tempSeatMap[row][column] = "L"
+					changes += 1
+				} else {
+					// still occupied
+					seats += 1
+				}
+			}
+		}
+	}
+	return changes, seats, tempSeatMap
+}
+
+func countVisibleSeats(row int, column int, grid [][]string) int{
+
+	count := 0
+	for _, rdiff := range []int{-1, 0, 1} {
+		for _, cdiff := range []int{-1, 0, 1} {
+
+			var r = row
+			var c = column
+
+			for {
+				r = r+rdiff
+				c = c+cdiff
+
+				if r < 0 || c < 0 || r >= len(grid) || c >= len(grid[0]) || (cdiff == 0 && rdiff == 0){
+					break
+				}
+				gridVal := grid[r][c]
+
+				if gridVal == "L" {
+					break
+				}
+
+				if gridVal == "#"{
+					count += 1
+					break
+				}
 			}
 		}
 	}
