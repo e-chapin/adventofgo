@@ -7,7 +7,6 @@ import (
 )
 
 
-
 func main() {
 
 	strlines := adventofgo.ReadFile("input.txt")
@@ -19,7 +18,6 @@ func main() {
 	wpEast := 10
 
 	var orientation string
-	//orientation_key := 3
 	direction := []string{"N", "E", "S", "W"}
 	orientation = direction[1]
 
