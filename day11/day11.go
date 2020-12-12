@@ -5,17 +5,20 @@ import (
 	"fmt"
 )
 
+type seatCoord struct {
+	row int
+	col int
+}
+
 func main() {
 
 	strlines := adventofgo.ReadFile("input.txt")
-	var seatMap [][]string
-	seatMap = make([][]string, len(strlines))
+	seatMap := make(map[seatCoord]string, len(strlines))
 
-	for row, line := range strlines {
-		seatMap[row] = make([]string, len(line))
-		for column, s := range line {
-			seat := string(s)
-			seatMap[row][column] = seat
+	for ri, row := range strlines {
+		for ci, column := range row {
+			seat := string(column)
+			seatMap[seatCoord{ri, ci}] = seat
 		}
 	}
 
@@ -47,67 +50,64 @@ func main() {
 
 }
 
+func copySeatMap(seatMap map[seatCoord]string) map[seatCoord]string {
+	tempSeatMap := make(map[seatCoord]string)
+	for i := range seatMap {
+		tempSeatMap[i] = seatMap[i]
+	}
+	return tempSeatMap
+}
 
-func checkAdjacentSeats(seatMap [][]string) (int, int, [][]string){
+func checkAdjacentSeats(seatMap map[seatCoord]string) (int, int, map[seatCoord]string){
 	seats, changes := 0, 0
 
 	tempSeatMap := copySeatMap(seatMap)
 
-	for row, line := range seatMap {
-		for column, seat := range line {
-
-			switch seat {
-			case ".":
-				// floor
-				continue
-			case "L":
-				// empty seat
-				if countAdjacent(row, column, seatMap) == 0 {
-					tempSeatMap[row][column] = "#"
-					changes += 1
-					// newly occupied
-					seats += 1
-				}
-			case "#":
-				if countAdjacent(row, column, seatMap) >= 4 {
-					tempSeatMap[row][column] = "L"
-					changes += 1
-				} else {
-					// still occupied
-					seats += 1
-				}
+	for coordiate := range seatMap {
+		seat := seatMap[coordiate]
+		switch seat {
+		case ".":
+			// floor
+			continue
+		case "L":
+			// empty seat
+			if countAdjacent(coordiate, seatMap) == 0 {
+				tempSeatMap[coordiate] = "#"
+				changes += 1
+				// newly occupied
+				seats += 1
+			}
+		case "#":
+			if countAdjacent(coordiate, seatMap) >= 4 {
+				tempSeatMap[coordiate] = "L"
+				changes += 1
+			} else {
+				// still occupied
+				seats += 1
 			}
 		}
 	}
 	return changes, seats, tempSeatMap
 }
 
-func copySeatMap(seatMap [][]string) [][]string {
-	tempSeatMap := make([][]string, len(seatMap))
-	for i := range seatMap {
-		tempSeatMap[i] = make([]string, len(seatMap[i]))
-		copy(tempSeatMap[i], seatMap[i])
-	}
-	return tempSeatMap
-}
-
-func countAdjacent(row int, column int, grid [][]string) int{
+func countAdjacent(coordinate seatCoord, grid map[seatCoord]string) int{
 
 	count := 0
 	checkSeatCount := 0
+
 	for _, rdiff := range []int{-1, 0, 1} {
 		for _, cdiff := range []int{-1, 0, 1} {
 
 			checkSeatCount += 1
 
-			r := row+rdiff
-			c := column+cdiff
+			r := coordinate.row+rdiff
+			c := coordinate.col+cdiff
 
-			if r < 0 || c < 0 || r >= len(grid) || c >= len(grid[0]) || (cdiff == 0 && rdiff == 0){
+			if r < 0 || c < 0 || (cdiff == 0 && rdiff == 0){
 				continue
 			}
 
-			gridVal := grid[r][c]
+			gridVal := grid[seatCoord{r, c}]
 			if gridVal == "#" {
 				count += 1
 			}
@@ -117,63 +117,63 @@ func countAdjacent(row int, column int, grid [][]string) int{
 
 }
 
-func checkVisibleSeats(seatMap [][]string) (int, int, [][]string){
+func checkVisibleSeats(seatMap map[seatCoord]string) (int, int, map[seatCoord]string){
 	seats, changes := 0, 0
 
 	tempSeatMap := copySeatMap(seatMap)
 
-	for row, line := range seatMap {
-		for column, seat := range line {
+	for coordinate := range seatMap {
 
-			switch seat {
-			case ".":
-				// floor
-				continue
-			case "L":
-				// empty seat
-				if countVisibleSeats(row, column, seatMap) == 0 {
-					tempSeatMap[row][column] = "#"
-					changes += 1
-					// newly occupied
-					seats += 1
-				}
-			case "#":
-				if countVisibleSeats(row, column, seatMap) >= 5 {
-					tempSeatMap[row][column] = "L"
-					changes += 1
-				} else {
-					// still occupied
-					seats += 1
-				}
+		seat := seatMap[coordinate]
+		switch seat {
+		case ".":
+			// floor
+			continue
+		case "L":
+			// empty seat
+			if countVisibleSeats(coordinate, seatMap) == 0 {
+				tempSeatMap[coordinate] = "#"
+				changes += 1
+				// newly occupied
+				seats += 1
+			}
+		case "#":
+			if countVisibleSeats(coordinate, seatMap) >= 5 {
+				tempSeatMap[coordinate] = "L"
+				changes += 1
+			} else {
+				// still occupied
+				seats += 1
 			}
 		}
 	}
 	return changes, seats, tempSeatMap
 }
 
-func countVisibleSeats(row int, column int, grid [][]string) int{
+func countVisibleSeats(coordinate seatCoord, grid map[seatCoord]string) int{
 
 	count := 0
 	for _, rdiff := range []int{-1, 0, 1} {
 		for _, cdiff := range []int{-1, 0, 1} {
 
-			var r = row
-			var c = column
+			if cdiff == 0 && rdiff == 0{
+				continue
+			}
+
+			r := coordinate.row
+			c := coordinate.col
 
 			for {
 				r = r+rdiff
 				c = c+cdiff
 
-				if r < 0 || c < 0 || r >= len(grid) || c >= len(grid[0]) || (cdiff == 0 && rdiff == 0){
-					break
-				}
-				gridVal := grid[r][c]
+				gridVal := grid[seatCoord{r, c}]
 
-				if gridVal == "L" {
+				if gridVal == "" || gridVal == "L" {
 					break
 				}
 
-				if gridVal == "#"{
+				if gridVal == "#" {
 					count += 1
 					break
 				}
