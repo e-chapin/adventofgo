@@ -15,23 +15,25 @@ func main() {
 
 	strlines := adventofgo.ReadFile("input.txt")
 	var mask string
+	var convertedMasks []string
 	for _, val := range strlines {
 		splLine := strings.Split(val, " = ")
 		if splLine[0] == "mask" {
 			mask = splLine[1]
+			// create a list of converted masks for part 2 using this part 1 mask.
+			convertedMasks = convertMask("", mask)
 			continue
 		}
 
 		value, _ := strconv.ParseInt(splLine[1], 10, 64)
 
 		adr, _ := strconv.Atoi(strings.TrimSuffix(strings.TrimPrefix(splLine[0], "mem["), "]"))
+
 		// Part 1 is a single masking of the value
 		memory[adr] = maskValue(value, mask)
 
-		// Part 2 need to convert its mask to a list of part 1 masks
-		masks := convertMask("", mask)
-		for _, m := range masks {
-			// and then apply each to the memory address, and put value at that address.
+		// part 2, apply each converted mask to the memory address and store the value at the masked address.
+		for _, m := range convertedMasks {
 			maskedAddress := int(maskValue(int64(adr), m))
 			memory2[maskedAddress] = value
 		}
