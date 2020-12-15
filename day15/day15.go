@@ -7,7 +7,17 @@ import (
 )
 
 func main() {
-	
+
+	fmt.Println("Day 15 Part 1")
+	fmt.Println(runGame(2020))
+
+	fmt.Println("Day 15 Part 2")
+	fmt.Println(runGame(30000000))
+
+}
+
+func runGame(numIters int) int {
+
 	spokenNumbers := make(map[int][]int)
 
 	input := "8,11,0,19,1,2"
@@ -24,9 +34,9 @@ func main() {
 	}
 
 	var next int
-	for i := startLen; i <= 2020; i++ {
+	for i := startLen; i <= numIters; i++ {
 		var timesSpoken = len(spokenNumbers[lastSpoken])
-		if timesSpoken == 1{
+		if timesSpoken == 1 {
 			next = 0
 		} else {
 			next = spokenNumbers[lastSpoken][timesSpoken-1] - spokenNumbers[lastSpoken][timesSpoken-2]
@@ -39,9 +49,5 @@ func main() {
 		}
 		lastSpoken = next
 	}
-	fmt.Println("Day 15 Part 1")
-	fmt.Println(lastSpoken)
-
-	//fmt.Println(spokenNumbers)
-
+	return lastSpoken
 }
