@@ -4,7 +4,6 @@ import (
 	"adventofgo"
 	"encoding/json"
 	"fmt"
-	"log"
 	"regexp"
 	"strconv"
 	"strings"
@@ -33,7 +32,7 @@ var invalidSum int
 
 var fieldPos = make(map[int]int)
 
-var myTicketFielPos = make(map[string]int)
+var myTicketFieldPos = make(map[string]int)
 
 func main() {
 
@@ -42,8 +41,6 @@ func main() {
 	invalidSum = findInvalidTickets()
 	fmt.Println("Day 16 part 1")
 	fmt.Println(invalidSum)
-
-	fmt.Println(myTicket)
 
 	findTicketLabels()
 }
@@ -67,9 +64,8 @@ func findTicketLabels() {
 		var foundIndex []int
 
 		// for every ticket, go over each column and see if that column is valid for this ticket.
-		// if it is valid for only one, we can store it and remove from result set.
+		// if it is valid for only one, we can store it and remove from result set (found index).
 		// continue until all are removed from input set and result set full of 1:1 fields and columns
-
 
 		for {
 			for _, f := range ticketFields {
@@ -92,7 +88,7 @@ func findTicketLabels() {
 					}
 				}
 				if matches == 1 {
-					myTicketFielPos[f.label] = myTicket[matchedIndex]
+					myTicketFieldPos[f.label] = myTicket[matchedIndex]
 					foundIndex = append(foundIndex, matchedIndex)
 				}
 			}
@@ -101,11 +97,8 @@ func findTicketLabels() {
 			}
 		}
 
-		fmt.Println("stop")
-		fmt.Println(myTicketFielPos)
-
 		product := 1
-		for k, v := range myTicketFielPos {
+		for k, v := range myTicketFieldPos {
 			if strings.HasPrefix(k, "departure"){
 				product *= v
 			}
@@ -121,20 +114,17 @@ func findInvalidTickets() int {
 	for _, tck := range otherTickets {
 		var valid = true
 		fields := strings.Split(tck, ",")
-		for _, field := range fields {
-			ifield, _ := strconv.Atoi(field)
-			if val, ok := rules[ifield]; !ok || !val {
+		for _, f := range fields {
+			iField, _ := strconv.Atoi(f)
+			if val, ok := rules[iField]; !ok || !val {
 				valid = false
-				totalInvalid += ifield
+				totalInvalid += iField
 			}
 		}
 		if valid {
 			// populate the last data struct
 			var t ticket
-			err := json.Unmarshal([]byte("["+tck+"]"), &t.values)
-			if err != nil {
-				log.Fatal(err)
-			}
+			_ = json.Unmarshal([]byte("["+tck+"]"), &t.values) // convert to JSON for easy splitting to int
 			validTickets = append(validTickets, t)
 		}
 	}
