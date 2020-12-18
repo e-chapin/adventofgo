@@ -19,9 +19,7 @@ type field struct {
 }
 
 type ticket struct {
-
 	values []int
-
 }
 
 
@@ -68,32 +66,41 @@ func findTicketLabels() {
 
 		var foundIndex []int
 
-		for index := 0; index < len(ticketFields); index++ {
-			var vals []int
-			// get all ticket vals at this index
-			for _, t := range validTickets {
-				vals = append(vals, t.values[index])
-			}
+		// for every ticket, go over each column and see if that column is valid for this ticket.
+		// if it is valid for only one, we can store it and remove from result set.
+		// continue until all are removed from input set and result set full of 1:1 fields and columns
 
-			for ticketIndex, f := range ticketFields {
 
-				//if adventofgo.IndexOfInt(ticketIndex, foundIndex) >= 0 {
-				//	continue
-				//}
+		for {
+			for _, f := range ticketFields {
+				matches := 0
+				matchedIndex := -1
+				for columnIndex := 0; columnIndex < len(ticketFields); columnIndex++ {
 
-				if allValuesMatch(vals, f) {
-					fieldPos[ticketIndex] = index
-					myTicketFielPos[f.label] = myTicket[index]
-					fmt.Println("Found match", f.label, myTicket[index])
-					foundIndex = append(foundIndex, ticketIndex)
-					break
+					if adventofgo.IndexOfInt(columnIndex, foundIndex) >= 0 {
+						continue
+					}
+
+					// isolate a list of numbers for this column from the tickets.
+					var tickVals []int
+					for _, t := range validTickets {
+						tickVals = append(tickVals, t.values[columnIndex])
+					}
+					if allValuesMatch(tickVals, f) {
+						matches += 1
+						matchedIndex = columnIndex
+					}
+				}
+				if matches == 1 {
+					myTicketFielPos[f.label] = myTicket[matchedIndex]
+					foundIndex = append(foundIndex, matchedIndex)
 				}
 			}
-
-			fmt.Println(vals)
-			fmt.Println(vals)
-
+			if len(foundIndex) == len(ticketFields){
+				break
+			}
 		}
+
 		fmt.Println("stop")
 		fmt.Println(myTicketFielPos)
 
