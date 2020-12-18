@@ -2,18 +2,59 @@ package main
 
 import (
 	"adventofgo"
+	"encoding/json"
 	"fmt"
+	"log"
 	"regexp"
 	"strconv"
 	"strings"
 )
 
+type field struct {
+	label string
+	minOne int
+	maxOne int
+	minTwo int
+	maxtwo int
+}
+
+type ticket struct {
+
+	values []int
+
+}
+
+
 func main() {
 
-	var rules = map[int]bool{}
+	var tix []ticket
 
+	myTicket, validTickets := findInvalidTickets()
+
+	for _, row := range validTickets {
+		fmt.Println(row)
+		var t ticket
+		err := json.Unmarshal([]byte("["+row+"]"), &t.values)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tix = append(tix, t)
+		fmt.Printf("%v", t)
+
+	}
+
+
+	fmt.Println(myTicket)
+	//fmt.Println(len(validTickets))
+
+}
+
+func findInvalidTickets() ([]int, []string) {
+	var rules = map[int]bool{}
 	var myTicket = []int{}
 	var otherTickets = []string{}
+
+	var ticketFields []field
 
 	strlines := adventofgo.ReadFile("input.txt")
 	var index = 0
@@ -37,10 +78,21 @@ func main() {
 		iMaxOne, _ := strconv.Atoi(result["maxOne"])
 		iMinTwo, _ := strconv.Atoi(result["minTwo"])
 		iMaxTwo, _ := strconv.Atoi(result["maxTwo"])
-		for i:= iMinOne; i <= iMaxOne; i++ {
+		
+		f := field{
+			label:  result["label"],
+			minOne: iMinOne,
+			maxOne: iMaxOne,
+			minTwo: iMinTwo,
+			maxtwo: iMaxTwo,
+		}
+
+		ticketFields = append(ticketFields, f)
+		
+		for i := iMinOne; i <= iMaxOne; i++ {
 			rules[i] = true
 		}
-		for i:= iMinTwo; i <= iMaxTwo; i++ {
+		for i := iMinTwo; i <= iMaxTwo; i++ {
 			rules[i] = true
 		}
 
@@ -55,7 +107,7 @@ func main() {
 		if val == "your ticket:" {
 			continue
 		}
-		for _, v := range(strings.Split(val, ",")){
+		for _, v := range strings.Split(val, ",") {
 			v, _ := strconv.Atoi(v)
 			myTicket = append(myTicket, v)
 		}
@@ -84,7 +136,5 @@ func main() {
 
 	fmt.Println("Day 16 Part 1")
 	fmt.Println(totalInvalid)
-
-	fmt.Println(len(validTickets))
-
+	return myTicket, validTickets
 }
