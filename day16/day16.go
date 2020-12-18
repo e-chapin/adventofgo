@@ -33,11 +33,7 @@ var myTicketFieldPos = make(map[string]int)
 func main() {
 
 	populateDataStructures()
-
-	invalidSum = findInvalidTickets()
-	fmt.Println("Day 16 part 1")
-	fmt.Println(invalidSum)
-
+	findInvalidTickets()
 	findTicketLabels()
 }
 
@@ -104,7 +100,7 @@ func findTicketLabels() {
 
 }
 
-func findInvalidTickets() int {
+func findInvalidTickets() {
 
 	var totalInvalid = 0
 	for _, tck := range nearbyTickets {
@@ -127,7 +123,6 @@ func findInvalidTickets() int {
 
 	fmt.Println("Day 16 Part 1")
 	fmt.Println(totalInvalid)
-	return totalInvalid
 }
 
 func populateDataStructures() {
