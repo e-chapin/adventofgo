@@ -25,13 +25,9 @@ type ticket struct {
 var validTickets []ticket
 var rules = map[int]bool{}
 var myTicket []int
-var otherTickets []string
+var nearbyTickets []string
 var ticketFields []field
-//var validTickets []string
 var invalidSum int
-
-var fieldPos = make(map[int]int)
-
 var myTicketFieldPos = make(map[string]int)
 
 func main() {
@@ -111,7 +107,7 @@ func findTicketLabels() {
 func findInvalidTickets() int {
 
 	var totalInvalid = 0
-	for _, tck := range otherTickets {
+	for _, tck := range nearbyTickets {
 		var valid = true
 		fields := strings.Split(tck, ",")
 		for _, f := range fields {
@@ -175,7 +171,6 @@ func populateDataStructures() {
 		for i := iMinTwo; i <= iMaxTwo; i++ {
 			rules[i] = true
 		}
-
 	}
 
 	for {
@@ -195,5 +190,5 @@ func populateDataStructures() {
 
 	}
 
-	otherTickets = append(otherTickets, strlines[index+1:]...)
+	nearbyTickets = append(nearbyTickets, strlines[index+1:]...)
 }
