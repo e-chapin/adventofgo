@@ -15,7 +15,7 @@ type field struct {
 	minOne int
 	maxOne int
 	minTwo int
-	maxtwo int
+	maxTwo int
 }
 
 type ticket struct {
@@ -25,36 +25,119 @@ type ticket struct {
 }
 
 
+var validTickets []ticket
+var rules = map[int]bool{}
+var myTicket []int
+var otherTickets []string
+var ticketFields []field
+//var validTickets []string
+var invalidSum int
+
+var fieldPos = make(map[int]int)
+
+var myTicketFielPos = make(map[string]int)
+
 func main() {
 
-	var tix []ticket
+	populateDataStructures()
 
-	myTicket, validTickets := findInvalidTickets()
-
-	for _, row := range validTickets {
-		fmt.Println(row)
-		var t ticket
-		err := json.Unmarshal([]byte("["+row+"]"), &t.values)
-		if err != nil {
-			log.Fatal(err)
-		}
-		tix = append(tix, t)
-		fmt.Printf("%v", t)
-
-	}
-
+	invalidSum = findInvalidTickets()
+	fmt.Println("Day 16 part 1")
+	fmt.Println(invalidSum)
 
 	fmt.Println(myTicket)
-	//fmt.Println(len(validTickets))
+
+	findTicketLabels()
+}
+
+
+func allValuesMatch(input []int, f field) bool {
+
+	allMatch := true
+	for _, i := range input {
+		if !((i <= f.maxOne && i >= f.minOne) || ( i <= f.maxTwo && i >= f.minTwo)) {
+			allMatch = false
+			break
+		}
+	}
+	return allMatch
 
 }
 
-func findInvalidTickets() ([]int, []string) {
-	var rules = map[int]bool{}
-	var myTicket = []int{}
-	var otherTickets = []string{}
+func findTicketLabels() {
 
-	var ticketFields []field
+		var foundIndex []int
+
+		for index := 0; index < len(ticketFields); index++ {
+			var vals []int
+			// get all ticket vals at this index
+			for _, t := range validTickets {
+				vals = append(vals, t.values[index])
+			}
+
+			for ticketIndex, f := range ticketFields {
+
+				//if adventofgo.IndexOfInt(ticketIndex, foundIndex) >= 0 {
+				//	continue
+				//}
+
+				if allValuesMatch(vals, f) {
+					fieldPos[ticketIndex] = index
+					myTicketFielPos[f.label] = myTicket[index]
+					fmt.Println("Found match", f.label, myTicket[index])
+					foundIndex = append(foundIndex, ticketIndex)
+					break
+				}
+			}
+
+			fmt.Println(vals)
+			fmt.Println(vals)
+
+		}
+		fmt.Println("stop")
+		fmt.Println(myTicketFielPos)
+
+		product := 1
+		for k, v := range myTicketFielPos {
+			if strings.HasPrefix(k, "departure"){
+				product *= v
+			}
+		}
+		fmt.Println("Day 16 part 2")
+		fmt.Println(product)
+
+}
+
+func findInvalidTickets() int {
+
+	var totalInvalid = 0
+	for _, tck := range otherTickets {
+		var valid = true
+		fields := strings.Split(tck, ",")
+		for _, field := range fields {
+			ifield, _ := strconv.Atoi(field)
+			if val, ok := rules[ifield]; !ok || !val {
+				valid = false
+				totalInvalid += ifield
+			}
+		}
+		if valid {
+			// populate the last data struct
+			var t ticket
+			err := json.Unmarshal([]byte("["+tck+"]"), &t.values)
+			if err != nil {
+				log.Fatal(err)
+			}
+			validTickets = append(validTickets, t)
+		}
+	}
+
+	fmt.Println("Day 16 Part 1")
+	fmt.Println(totalInvalid)
+	return totalInvalid
+}
+
+func populateDataStructures() {
 
 	strlines := adventofgo.ReadFile("input.txt")
 	var index = 0
@@ -65,7 +148,7 @@ func findInvalidTickets() ([]int, []string) {
 			break
 		}
 
-		r := regexp.MustCompile(`(?P<label>[a-z]+): (?P<minOne>\d+)-(?P<maxOne>\d+) or (?P<minTwo>\d+)-(?P<maxTwo>\d+)`)
+		r := regexp.MustCompile(`(?P<label>[a-z ]+): (?P<minOne>\d+)-(?P<maxOne>\d+) or (?P<minTwo>\d+)-(?P<maxTwo>\d+)`)
 		match := r.FindStringSubmatch(val)
 		result := make(map[string]string)
 		for i, name := range r.SubexpNames() {
@@ -78,17 +161,17 @@ func findInvalidTickets() ([]int, []string) {
 		iMaxOne, _ := strconv.Atoi(result["maxOne"])
 		iMinTwo, _ := strconv.Atoi(result["minTwo"])
 		iMaxTwo, _ := strconv.Atoi(result["maxTwo"])
-		
+
 		f := field{
 			label:  result["label"],
 			minOne: iMinOne,
 			maxOne: iMaxOne,
 			minTwo: iMinTwo,
-			maxtwo: iMaxTwo,
+			maxTwo: iMaxTwo,
 		}
 
 		ticketFields = append(ticketFields, f)
-		
+
 		for i := iMinOne; i <= iMaxOne; i++ {
 			rules[i] = true
 		}
@@ -111,30 +194,9 @@ func findInvalidTickets() ([]int, []string) {
 			v, _ := strconv.Atoi(v)
 			myTicket = append(myTicket, v)
 		}
+		validTickets = append(validTickets, ticket{myTicket})
 
 	}
 
 	otherTickets = append(otherTickets, strlines[index+1:]...)
-
-	var totalInvalid = 0
-	var validTickets = []string{}
-	for _, ticket := range otherTickets {
-		var valid = true
-		fields := strings.Split(ticket, ",")
-		for _, field := range fields {
-			ifield, _ := strconv.Atoi(field)
-			if val, ok := rules[ifield]; !ok || !val {
-				valid = false
-				totalInvalid += ifield
-			}
-		}
-		if valid {
-			validTickets = append(validTickets, ticket)
-		}
-
-	}
-
-	fmt.Println("Day 16 Part 1")
-	fmt.Println(totalInvalid)
-	return myTicket, validTickets
 }

@@ -36,6 +36,17 @@ func IndexOf(item string, list []string)  int {
 	return -1
 }
 
+func IndexOfInt(item int, list []int)  int {
+	for index, value := range list {
+		if value == item {
+			return index
+		}
+	}
+	return -1
+}
+
+
+
 // Abs returns the absolute value of x.
 func Abs(x int) int {
 	if x < 0 {
