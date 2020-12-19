@@ -11,12 +11,20 @@ import (
 func main() {
 
 	strlines := adventofgo.ReadFile("input.txt")
-	total := 0
+	totalPart1 := 0
+	totalPart2 := 0
 	for _, row := range strlines {
-		total += run(row, regexp.MustCompile(`\([^\(\)]+\)`), evaluateExpression)
+		totalPart1 += run(row, regexp.MustCompile(`\([^\(\)]+\)`), evaluateExpression)
+		totalPart2 += run(row, regexp.MustCompile(`\([^\(\)]+\)`), func(s string) int {
+			// before calculating the () group left to right, grab the groups of x + y and calculate those to
+			// force priority over multiplication
+			return run(s, regexp.MustCompile(`\d+ \+ \d+`), evaluateExpression)
+		})
 	}
 	fmt.Println("Day 18 Part 1")
-	fmt.Println(total)
+	fmt.Println(totalPart1)
+	fmt.Println("Day 18 Part 2")
+	fmt.Println(totalPart2)
 
 }
 
