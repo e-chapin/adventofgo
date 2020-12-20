@@ -45,6 +45,14 @@ func IndexOfInt(item int, list []int)  int {
 	}
 	return -1
 }
+func IndexOfInt64(item int64, list []int64)  int {
+	for index, value := range list {
+		if value == item {
+			return index
+		}
+	}
+	return -1
+}
 
 
 
@@ -70,8 +78,25 @@ func CheckError (err error) {
 
 }
 
+func BinaryToInt(s string) int64 {
+	i, err := strconv.ParseInt(s, 2, 64)
+	CheckError(err)
+	return i
+
+}
+
 func AsInt(s string) int {
 	i, err := strconv.Atoi(s)
 	CheckError(err)
 	return i
+}
+
+func RemoveEmpty(s []string) []string {
+	var r []string
+	for _, v := range s {
+		if v != "" {
+			r = append(r, v)
+		}
+	}
+	return r
 }
