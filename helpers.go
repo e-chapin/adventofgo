@@ -3,6 +3,7 @@ package adventofgo
 import (
 	"io/ioutil"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -60,4 +61,17 @@ func ReverseString(s string) (result string) {
 		result = string(v) + result
 	}
 	return
+}
+
+func CheckError (err error) {
+	if err != nil {
+		panic(err)
+	}
+
+}
+
+func AsInt(s string) int {
+	i, err := strconv.Atoi(s)
+	CheckError(err)
+	return i
 }
