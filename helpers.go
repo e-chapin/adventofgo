@@ -54,8 +54,6 @@ func IndexOfInt64(item int64, list []int64)  int {
 	return -1
 }
 
-
-
 // Abs returns the absolute value of x.
 func Abs(x int) int {
 	if x < 0 {
