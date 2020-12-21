@@ -4,11 +4,9 @@ import (
 	"adventofgo"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 )
-
-
-
 
 func main() {
 
@@ -67,8 +65,56 @@ func main() {
 		}
 	}
 
+	// narrow down allergens by finding ones that are 1:1, and remove that from all the others.
+	// Keep going until all are 1:1.
+	// this may have been less complicated if I removed entries from allergens as I went into another list
+	// instead of the for/while loop.
+	var ingredients []string
+	var danger = map[string]string{}
+	for {
+		for ingredient, allergen := range allergens {
+			fmt.Println(ingredient, allergen)
+			if len(allergen) == 1 {
+				ingredients = append(ingredients, ingredient)
+
+				for i, a := range allergens {
+					if i == ingredient {
+						continue
+					}
+					for k, _ := range allergen {
+						danger[ingredient] = k
+						// this will always be a loop of 1, but easy way to get the key
+						delete(a, k)
+					}
+				}
+			}
+		}
+		done := true
+		for _, allergen := range allergens {
+			if len(allergen) != 1 {
+				done = false
+			}
+		}
+		if done{
+			break
+		}
+	}
+
+	ingredients = adventofgo.Unique(ingredients)
+	sort.Strings(ingredients)
+	list := ""
+	for i, ing := range ingredients {
+		fmt.Println(i)
+		if i > 0 {
+			list += ","
+		}
+		list += danger[ing]
+	}
+
+
+
 	fmt.Println("Day 20 part 1")
 	fmt.Println(total)
-	//fmt.Println("Day 20 part 2")
-
+	fmt.Println("Day 20 part 2")
+	fmt.Println(list)
 }
