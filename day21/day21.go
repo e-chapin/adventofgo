@@ -17,10 +17,8 @@ func main() {
 	iCount := map[string]int{}
 	allergens := map[string]map[string]struct{}{}
 
-	for index, v := range input {
-		fmt.Println(index, v)
+	for _, v := range input {
 		g := re.FindStringSubmatch(v)
-		fmt.Println(g)
 
 		ingredients := strings.Split(g[1], " ")
 		algs := strings.Split(g[2], ", ")
@@ -60,20 +58,16 @@ func main() {
 	// for each ingredient in master list, add its total if not found in allergens.
 	for i, v := range iCount {
 		if adventofgo.IndexOf(i, aList) < 0 {
-			fmt.Println("Counting i", i)
 			total += v
 		}
 	}
 
 	// narrow down allergens by finding ones that are 1:1, and remove that from all the others.
 	// Keep going until all are 1:1.
-	// this may have been less complicated if I removed entries from allergens as I went into another list
-	// instead of the for/while loop.
 	var ingredients []string
 	var danger = map[string]string{}
 	for {
 		for ingredient, allergen := range allergens {
-			fmt.Println(ingredient, allergen)
 			if len(allergen) == 1 {
 				ingredients = append(ingredients, ingredient)
 
@@ -104,7 +98,6 @@ func main() {
 	sort.Strings(ingredients)
 	list := ""
 	for i, ing := range ingredients {
-		fmt.Println(i)
 		if i > 0 {
 			list += ","
 		}
