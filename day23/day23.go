@@ -2,99 +2,98 @@ package main
 
 import (
 	"adventofgo"
+	"container/ring"
 	"fmt"
 )
 
-var max, min int
+func getStartingCups(input string) (cups *ring.Ring) {
 
-// LLNode is a doubly linked list node
-type LL struct {
-	val         int
-	left, right *LL
-}
-
-func getStartingCups(input string) (cups []int) {
-
-	for i := range input {
-		val := adventofgo.AsInt(string(input[i]))
-		if val > max {
-			max = val
-		}
-		if val < min {
-			min = val
-		}
-		cups = append(cups, val)
+	cups = ring.New(len(input))
+	for _, v := range input {
+		cups.Value = adventofgo.AsInt(string(v))
+		cups = cups.Next()
 	}
 	return
 }
 
-// 0 <= index <= len(a)
-func insert(a []int, index int, value int) []int {
-	if len(a) == index { // nil or empty slice or after last element
-		return append(a, value)
+func getMillionCups(input string) (cups *ring.Ring) {
+
+	cups = ring.New(1000000)
+	for _, v := range input {
+		cups.Value = adventofgo.AsInt(string(v))
+		cups = cups.Next()
 	}
-	a = append(a[:index+1], a[index:]...) // index < len(a)
-	a[index] = value
-	return a
+	for i := len(input)+1; i <= 1000000; i +=1 {
+		cups.Value = i
+		cups = cups.Next()
+	}
+	return
 }
 
-func doMove(cups []int, currentIndex int) ([]int, int){
+func playGame(cups *ring.Ring, rounds int) *ring.Ring {
 
-	var removedCups []int
+	var max int
+	l := cups.Len()
 
-	currentCup := cups[currentIndex%len(cups)]
-
-	for i := 1; i <= 3; i += 1 {
-		index := (currentIndex+i)%len(cups)
-		removedCups = append(removedCups, cups[index])
-	}
-
-	for _, v := range removedCups {
-		i := adventofgo.IndexOfInt(v, cups)
-		cups = append(cups[:i], cups[(i+1):]...)
-	}
-
-	var destinationIndex int
-	destinationCup := currentCup
-	for {
-		destinationCup -= 1
-		if destinationCup < min {
-			destinationCup = max
+	// start by building a hash of cup values and pointers to a cup, so we don't have to search
+	// sequentially every move. Also set max value.
+	cupMap := make(map[int]*ring.Ring, l)
+	for i:= 0; i < l; i += 1 {
+		if cups.Value.(int) > max {
+			max = cups.Value.(int)
 		}
-		destinationIndex = adventofgo.IndexOfInt(destinationCup, cups)
-		if destinationIndex >= 0 {
-			break
-		}
+		cupMap[cups.Value.(int)] = cups
+		cups = cups.Next()
 	}
 
+	for i := 0; i < rounds; i +=1 {
+		// remove 3 to the right of current cup
+		removedCups := cups.Unlink(3)
 
-	var tmpCups []int
-	tmpCups = append(tmpCups, cups[:destinationIndex+1]...)
-	tmpCups = append(tmpCups, removedCups...)
-	tmpCups = append(tmpCups, cups[destinationIndex+1:]...)
-	cups = tmpCups
+		destination := cups.Value.(int)
+		for {
+			destination -= 1
+			if destination < 1 {
+				destination = max
+			}
+			inRemovedCups := false
+			removedCups.Do(func(v interface{}){
+				if v.(int) == destination {
+					inRemovedCups = true
+				}
+			})
+			if !inRemovedCups {
+				break
+			}
+		}
 
+		// use the map to find the destination cup, and insert the removed next to it
+		cupMap[destination].Link(removedCups)
+		// move one cup right
+		cups = cups.Next()
+	}
 
-	return cups, adventofgo.IndexOfInt(currentCup, cups)+1
-
+	// return the spot in the ring of the first cup
+	return cupMap[1]
 }
 
 func main() {
 
-	input := adventofgo.GetFileString("example-input.txt")
+	input := adventofgo.GetFileString("input.txt")
 	cups := getStartingCups(input)
 
-	cupIndex := 0
-	for i := 0; i < 100; i +=1 {
-		cups, cupIndex = doMove(cups, cupIndex)
-
-	}
 	fmt.Println("Day 23 Part 1")
-	indexOne := adventofgo.IndexOfInt(1, cups)
-	for i := indexOne+1; i < len(cups); i +=1 {
-		fmt.Print(cups[i])
-	}
-	for i := 0; i < indexOne; i +=1 {
-		fmt.Print(cups[i])
-	}
+	cups = playGame(cups, 10)
+	cups.Do(func(v interface{}){
+		if v.(int) != 1 {
+			fmt.Print(v.(int))
+		}
+	})
+	fmt.Println()
+	cups = getMillionCups(input)
+
+
+	fmt.Println("Day 23 Part 2")
+	cups = playGame(cups, 10000000)
+	fmt.Println(cups.Next().Value.(int) * cups.Next().Next().Value.(int))
 }
