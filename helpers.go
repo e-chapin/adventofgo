@@ -38,7 +38,6 @@ func Contains(item int, list []int) bool{
 	return false
 }
 
-
 func IndexOf(item string, list []string)  int {
 	for index, value := range list {
 		if value == item {
@@ -56,6 +55,7 @@ func IndexOfInt(item int, list []int)  int {
 	}
 	return -1
 }
+
 func IndexOfInt64(item int64, list []int64)  int {
 	for index, value := range list {
 		if value == item {
@@ -120,4 +120,11 @@ func Unique(strSlice []string) []string {
 		}
 	}
 	return list
+}
+
+func CloneInts(ints []int) (clone []int) {
+	for _, v := range ints {
+		clone = append(clone, v)
+	}
+	return
 }
