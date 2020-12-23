@@ -43,7 +43,6 @@ func doMove(cups []int, currentIndex int) ([]int, int){
 	var removedCups []int
 
 	currentCup := cups[currentIndex%len(cups)]
-	fmt.Println("current cup", currentCup)
 
 	for i := 1; i <= 3; i += 1 {
 		index := (currentIndex+i)%len(cups)
@@ -68,8 +67,6 @@ func doMove(cups []int, currentIndex int) ([]int, int){
 		}
 	}
 
-	fmt.Println("Destination cup", cups[destinationIndex])
-
 
 	var tmpCups []int
 	tmpCups = append(tmpCups, cups[:destinationIndex+1]...)
@@ -84,16 +81,12 @@ func doMove(cups []int, currentIndex int) ([]int, int){
 
 func main() {
 
-	input := adventofgo.GetFileString("input.txt")
+	input := adventofgo.GetFileString("example-input.txt")
 	cups := getStartingCups(input)
 
 	cupIndex := 0
 	for i := 0; i < 100; i +=1 {
-
-		fmt.Println("-- move", i+1, "--")
-		fmt.Println(cups)
 		cups, cupIndex = doMove(cups, cupIndex)
-		fmt.Println()
 
 	}
 	fmt.Println("Day 23 Part 1")
@@ -104,7 +97,4 @@ func main() {
 	for i := 0; i < indexOne; i +=1 {
 		fmt.Print(cups[i])
 	}
-	//fmt.Println(cups)
-
-
 }
