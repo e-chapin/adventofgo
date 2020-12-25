@@ -15,9 +15,9 @@ func main() {
 	for keyCard := 1; keyCard != card; loopCard += 1 {
 		keyCard = (keyCard*7)%20201227
 	}
-	
+
 	loopDoor := 0
-	for keyDoor := 1; keyDoor != card; loopDoor++ {
+	for keyDoor := 1; keyDoor != card; loopDoor += 1 {
 		keyDoor = keyDoor * 7 % 20201227
 	}
 
